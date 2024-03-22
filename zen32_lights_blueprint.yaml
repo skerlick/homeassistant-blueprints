@@ -1,22 +1,22 @@
 blueprint:
   name: Zooz_controller_light_scene
   description:
-    "__Select one of the zen32 scene buttons to control another z-wave light switch.__<br>
+    "__Select one of the zen32 scene buttons to control a light.__<br>
 
     This automation does two functions:<br>
-     1. Toggle the state of the selected z-wave light switch when the corresponding scene button is pressed.<br>
-     2. Synchronize the scene button LED to the state of the z-wave light switch.<br>
+     1. Toggle the state of the selected light when the corresponding scene button is pressed.<br>
+     2. Synchronize the scene button LED to the state of the lighth.<br>
 
     The scene button LED synchronization state is the same as all the other buttons in this project:<br>
     - If the light is on, the scene LED is off.<br>
     - If the light is off, the scene LED is on.<br>
 
-    The scene button LED synchronization is maintained if the z-wave light is switched from<br>
+    The scene button LED synchronization is maintained if the light is switched from<br>
     - the z-wave controller scene button (ZEN32)<br>
-    - or from the z-wave switch.<br>
+    - or from the switch.<br>
     - or from a Home Assistant entity button or scene. <br>
 
-    When Home Assistant starts, the light switch state is read and synchronized to the scene button.<br>
+    When Home Assistant starts, the light state is read and synchronized to the scene button.<br>
     A description and manuals for the ZEN32 are on the vendors page: 
     [ZEN32](https://www.getzooz.com/zooz-zen32-scene-controller/)\n
     "
