@@ -1,0 +1,116 @@
+blueprint:
+  name: Zooz_controller_light_scene
+  description:
+    "__Select one of the zen32 scene buttons to control another z-wave light switch.__<br>
+
+    This automation does two functions:<br>
+     1. Toggle the state of the selected z-wave light switch when the corresponding scene button is pressed.<br>
+     2. Synchronize the scene button LED to the state of the z-wave light switch.<br>
+
+    The scene button LED synchronization state is the same as all the other buttons in this project:<br>
+    - If the light is on, the scene LED is off.<br>
+    - If the light is off, the scene LED is on.<br>
+
+    The scene button LED synchronization is maintained if the z-wave light is switched from<br>
+    - the z-wave controller scene button (ZEN32)<br>
+    - or from the z-wave switch.<br>
+    - or from a Home Assistant entity button or scene. <br>
+
+    When Home Assistant starts, the light switch state is read and synchronized to the scene button.<br>
+    A description and manuals for the ZEN32 are on the vendors page: 
+    [ZEN32](https://www.getzooz.com/zooz-zen32-scene-controller/)\n
+    "
+  domain: automation
+  input:
+    light_entity:
+      name: Light
+      description: "The light entity controlled locally or by the
+        the selected scene button event.<br>
+        The state of this light is reflected in the scene button LED selected below."
+      selector:
+        entity:
+          domain: light
+          multiple: false
+    scene_controller:
+      name: Scene Controller
+      description: The scene controller device. Zen32 expected.
+      selector:
+        device:
+          integration: zwave_js
+    scene_button:
+      name: Scene Button
+      description: "Select which scene button to control the light entity.<br>
+        Each scene controller button generates an event that is used<br>
+        to control the light entity.<br><br>
+        Select one of the four values depending one which scene button will control the light:<br>
+          * Scene button 1 is 001,<br>
+          * Scene button 2 is 002,<br>
+          * Scene button 3 is 003,<br>
+          * Scene button 4 is 004<br>
+        Each scene button has its own LED to reflect the scene state."
+    event_trigger_id:
+      name: Trigger ID for the scene event.
+      description: Unique ID for the scene controller trigger
+    led_config_parameter:
+      name: Zen32 Scene button LED Config Parameter
+      description: The Zen32 configuration parameter number.<br>
+        * LED for scene button 1 is parameter 2.<br>
+        * LED for scene button 2 is parameter 3.<br>
+        * LED for scene button 3 is parameter 4.<br>
+        * LED for scene button 4 is parameter 5.<br>
+
+trigger:
+  - platform: homeassistant
+    event: start
+
+  - platform: state
+    entity_id: !input "light_entity"
+
+  - platform: device
+    device_id: !input "scene_controller"
+    domain: zwave_js
+    type: event.value_notification.central_scene
+    property: scene
+    property_key: !input "scene_button"
+    endpoint: 0
+    command_class: 91
+    subtype: Endpoint 0 Scene !input "scene_button"
+    value: 0
+    id: !input "event_trigger_id"
+
+condition: []
+
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: !input "event_trigger_id"
+        sequence:
+          - service: light.toggle
+            target:
+              entity_id: !input "light_entity"
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input "light_entity"
+            state: "on"
+        sequence:
+          - service: zwave_js.set_config_parameter
+            data:
+              parameter: !input "led_config_parameter"
+              value: "2"
+            target:
+              device_id: !input "scene_controller"
+      - conditions:
+          - condition: state
+            entity_id: !input "light_entity"
+            state: "off"
+        sequence:
+          - service: zwave_js.set_config_parameter
+            data:
+              parameter: !input "led_config_parameter"
+              value: "3"
+            target:
+              device_id: !input "scene_controller"
+
+mode: single
