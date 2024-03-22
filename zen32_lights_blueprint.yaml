@@ -1,5 +1,5 @@
 blueprint:
-  name: Zooz_controller_light_scene
+  name: Zooz Zen32 Controller Lighting
   description:
     "__Select one of the zen32 scene buttons to control a light.__<br>
 
